@@ -3,6 +3,7 @@ require('dotenv').config();
 const express     = require('express');
 const bodyParser  = require('body-parser');
 const cors        = require('cors');
+const helmet     = require('helmet');
 
 const apiRoutes         = require('./routes/api.js');
 const fccTestingRoutes  = require('./routes/fcctesting.js');
@@ -11,6 +12,32 @@ const runner            = require('./test-runner');
 const app = express();
 
 app.use('/public', express.static(process.cwd() + '/public'));
+
+
+
+// Define the max age for HSTS
+const ninetyDaysInSeconds = 90 * 24 * 60 * 60;
+
+app.use(helmet({
+  frameguard: { action: 'sameorigin' },
+  hsts: { maxAge: ninetyDaysInSeconds, force: true },
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'"],
+      styleSrc: ["'self'"],
+    }
+  },
+  hidePoweredBy: true,
+  xssFilter: true,
+  noSniff: true,
+  ieNoOpen: true,
+  dnsPrefetchControl: true,
+  nocache: false,
+  referrerPolicy: { policy: 'same-origin' }
+}));
+
+
 
 app.use(cors({origin: '*'})); //For FCC testing purposes only
 
